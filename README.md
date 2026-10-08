@@ -24,12 +24,12 @@ Notes:
 
 1. **GitHub:** create an empty repo (e.g. `anarc`), then from this folder:
    ```bash
-   git remote add origin https://github.com/YOUR_GITHUB_USERNAME/anarc.git
+   git remote add origin https://github.com/synthezizer/anarc.git
    ```
    ```bash
    git push -u origin main
    ```
-2. **Editor:** in `public/admin/config.yml`, set `repo: YOUR_GITHUB_USERNAME/anarc`, commit, and push.
+2. **Editor:** in `public/admin/config.yml`, set `repo: synthezizer/anarc`, commit, and push.
 3. **Cloudflare Pages:** Workers & Pages → Create → Pages → Connect to Git → pick the repo.
    - Framework preset: **Astro**
    - Build command: `npm run build`
