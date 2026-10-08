@@ -1,0 +1,27 @@
+---
+/** The sidebar gadget stack: calendar (desktop/tablet only; hidden on phones). */
+import CalendarGadget from './CalendarGadget.astro';
+---
+
+<section class="gadgets" aria-label="Gadgets">
+  <CalendarGadget />
+</section>
+
+<script>
+  import { startGadgets } from '@/gadgets';
+  startGadgets();
+</script>
+
+<style>
+  .gadgets {
+    display: grid;
+    gap: var(--space-m);
+    margin-top: var(--space-xs);
+  }
+
+  @media (max-width: 47.99rem) {
+    .gadgets {
+      display: none;
+    }
+  }
+</style>

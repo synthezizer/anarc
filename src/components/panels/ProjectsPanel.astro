@@ -1,0 +1,182 @@
+---
+/**
+ * Projects: every work entry with a candy status card (shipped / working /
+ * archived). The status cards at the top filter the list. Set `status:` in a
+ * work entry's frontmatter (defaults to "shipped"). With `url:` (landing page or
+ * repo) the row links there through the redirect prompt; otherwise to its page.
+ */
+import Panel from './Panel.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { iconForHref } from '@/lib/link-icon';
+import { getWork } from '@/lib/work';
+
+const projects = await getWork();
+
+const statuses = [
+  { key: 'shipped', flavor: 'lime' },
+  { key: 'working', flavor: 'tangerine' },
+  { key: 'archived', flavor: 'grape' },
+] as const;
+
+const flavorOf = Object.fromEntries(statuses.map((s) => [s.key, s.flavor]));
+const count = (key: string) => projects.filter((p) => p.data.status === key).length;
+---
+
+<Panel title="projects" id="projects" count={projects.length}>
+  <div class="projects" data-projects>
+    <div class="filters" role="group" aria-label="Filter projects by status">
+      {
+        statuses.map((s) => (
+          <button
+            type="button"
+            class="chip candy"
+            style={`--c: var(--candy-${s.flavor})`}
+            data-filter={s.key}
+            aria-pressed="false"
+          >
+            {s.key}
+            <span class="n">{count(s.key)}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    {
+      projects.length > 0 ? (
+        <ul class="list">
+          {projects.map((p) => (
+            <li data-status={p.data.status}>
+              {p.data.url ? (
+                <a href={p.data.url} target="_blank" rel="noopener" data-confirm-redirect>
+                  <Icon icon={iconForHref(p.data.url)} />
+                  {p.data.title}
+                </a>
+              ) : (
+                <a href={`/work/${p.id}`}>{p.data.title}</a>
+              )}
+              <span class="chip candy tag" style={`--c: var(--candy-${flavorOf[p.data.status]})`}>
+                {p.data.status}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty">no projects yet</p>
+      )
+    }
+  </div>
+</Panel>
+
+<script>
+  // Status cards filter the list; click the active one again to show everything.
+  const wire = () => {
+    document.querySelectorAll<HTMLElement>('[data-projects]').forEach((root) => {
+      if (root.dataset['ready']) return;
+      root.dataset['ready'] = 'true';
+      const buttons = root.querySelectorAll<HTMLButtonElement>('[data-filter]');
+      const rows = root.querySelectorAll<HTMLElement>('[data-status]');
+      buttons.forEach((button) =>
+        button.addEventListener('click', () => {
+          const on = button.getAttribute('aria-pressed') !== 'true';
+          buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === button && on)));
+          const filter = on ? button.dataset['filter'] : null;
+          rows.forEach((row) => (row.hidden = !!filter && row.dataset['status'] !== filter));
+        }),
+      );
+    });
+  };
+  document.addEventListener('astro:page-load', wire);
+</script>
+
+<style>
+  .projects {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  /* Little candy cards */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font: 600 0.75rem / 1.2 var(--font-pixel);
+    letter-spacing: 0.02em;
+  }
+
+  button.chip {
+    cursor: pointer;
+    opacity: 0.8;
+    transition:
+      opacity var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  button.chip:hover {
+    opacity: 1;
+  }
+
+  button.chip:active {
+    transform: scale(0.95);
+  }
+
+  button.chip[aria-pressed='true'] {
+    opacity: 1;
+    outline: 2px solid rgb(255 255 255 / 0.85);
+    outline-offset: 1px;
+  }
+
+  .n {
+    padding: 0 0.3rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.35);
+    font-size: 0.6875rem;
+  }
+
+  /* Ruled list: a line above every row and one closing the bottom */
+  .list {
+    display: grid;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.4rem 0.2rem;
+    border-top: 1px solid var(--rule);
+    font-size: var(--text-xs);
+  }
+
+  .list a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+    overflow: hidden;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tag {
+    flex-shrink: 0;
+    font-size: 0.6875rem;
+  }
+
+  .empty {
+    color: var(--panel-muted);
+    font-size: var(--text-xs);
+    font-style: italic;
+  }
+</style>

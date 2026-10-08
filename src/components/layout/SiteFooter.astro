@@ -1,0 +1,44 @@
+---
+import { nav, site } from '@/site.config';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer container">
+  <ul>
+    {
+      nav.map((item) => (
+        <li>
+          <a href={item.href}>{item.label.toLowerCase()}</a>
+        </li>
+      ))
+    }
+  </ul>
+  <p>© {year} {site.domain}</p>
+</footer>
+
+<style>
+  .site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2xs) var(--space-m);
+    margin-top: var(--space-xl);
+    padding-block: var(--space-m) var(--space-l);
+    color: var(--page-muted);
+    font-size: var(--text-xs);
+    text-shadow: var(--page-shadow);
+  }
+
+  ul {
+    display: flex;
+    padding: 0;
+    list-style: none;
+  }
+
+  li + li::before {
+    content: '|';
+    padding-inline: 0.6em;
+    color: var(--page-muted);
+  }
+</style>

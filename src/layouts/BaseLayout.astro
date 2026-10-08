@@ -1,0 +1,89 @@
+---
+import '@/styles/fonts';
+import '@/styles/tokens.css';
+import '@/styles/base.css';
+import { ClientRouter } from 'astro:transitions';
+import SiteFooter from '@/components/layout/SiteFooter.astro';
+import Bubbles from '@/components/layout/Bubbles.astro';
+import RedirectDialog from '@/components/layout/RedirectDialog.astro';
+import { site } from '@/site.config';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = site.description } = Astro.props;
+const fullTitle = title ? `${title} · ${site.name}` : site.name;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang={site.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#89cff0" />
+    <script is:inline>
+      // First paint: hide glass until the entrance takes over (failsafe after 3s).
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('motion-boot');
+        setTimeout(function () { document.documentElement.classList.remove('motion-boot'); }, 3000);
+      }
+    </script>
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <svg class="visually-hidden" aria-hidden="true" focusable="false">
+      <filter id="bitcrush" color-interpolation-filters="sRGB">
+        <feComponentTransfer>
+          <feFuncR type="discrete" tableValues="0 0.2 0.4 0.6 0.8 1" />
+          <feFuncG type="discrete" tableValues="0 0.2 0.4 0.6 0.8 1" />
+          <feFuncB type="discrete" tableValues="0 0.2 0.4 0.6 0.8 1" />
+        </feComponentTransfer>
+      </filter>
+    </svg>
+    <Bubbles />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter />
+    <RedirectDialog />
+
+    <script>
+      import { startMotion } from '@/motion';
+      startMotion();
+    </script>
+  </body>
+</html>
+
+<style>
+  main {
+    position: relative;
+    z-index: 1;
+  }
+
+  .skip-link {
+    position: absolute;
+    inset-inline-start: var(--gutter);
+    inset-block-start: var(--space-s);
+    z-index: 100;
+    padding: var(--space-2xs) var(--space-s);
+    background: var(--head-bg);
+    color: var(--head-ink);
+    transform: translateY(-300%);
+  }
+
+  .skip-link:focus-visible {
+    transform: none;
+  }
+</style>

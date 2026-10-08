@@ -1,0 +1,158 @@
+---
+/**
+ * "You will be redirected to <url>, continue?" Any link with
+ * data-confirm-redirect opens this Aero dialog instead of leaving straight away.
+ */
+---
+
+<dialog class="redirect" id="redirect-dialog" aria-labelledby="redirect-title">
+  <form method="dialog">
+    <header class="bar">
+      <h2 id="redirect-title">leaving the site</h2>
+    </header>
+    <div class="body">
+      <p>you will be redirected to</p>
+      <p class="url" data-redirect-url></p>
+      <p>continue?</p>
+    </div>
+    <footer class="actions">
+      <button class="cancel" value="cancel">cancel</button>
+      <a class="go candy" href="#" target="_blank" rel="noopener" data-redirect-go>continue</a>
+    </footer>
+  </form>
+</dialog>
+
+<script>
+  // One listener for the whole visit (survives client-side navigation).
+  document.addEventListener(
+    'click',
+    (event) => {
+      const link = (event.target as Element | null)?.closest('a[data-confirm-redirect]');
+      const dialog = document.getElementById('redirect-dialog') as HTMLDialogElement | null;
+      if (!(link instanceof HTMLAnchorElement) || !dialog) return;
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey) return;
+
+      event.preventDefault();
+      const href = link.href;
+      const label = dialog.querySelector('[data-redirect-url]');
+      if (label) label.textContent = href.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+      // "continue" is a real link, so the browser never treats it as a popup.
+      const go = dialog.querySelector<HTMLAnchorElement>('[data-redirect-go]');
+      if (go) go.href = href;
+      dialog.showModal();
+      go?.focus();
+    },
+    true,
+  );
+
+  // Following the continue link closes the prompt.
+  document.addEventListener('click', (event) => {
+    const go = (event.target as Element | null)?.closest('[data-redirect-go]');
+    if (go) (go.closest('dialog') as HTMLDialogElement | null)?.close();
+  });
+</script>
+
+<style>
+  .redirect {
+    width: min(26rem, calc(100vw - 2rem));
+    margin: auto; /* the global reset zeroes the browser's centring margin */
+    padding: 0;
+    overflow: hidden;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--panel-radius);
+    box-shadow:
+      var(--panel-shadow),
+      0 24px 60px rgb(0 30 70 / 0.45);
+    -webkit-backdrop-filter: var(--glass);
+    backdrop-filter: var(--glass);
+    color: var(--panel-ink);
+  }
+
+  .redirect[open] {
+    animation: pop-in var(--dur-base) var(--ease-out);
+  }
+
+  .redirect::backdrop {
+    background: rgb(4 30 60 / 0.35);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+  }
+
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.97);
+    }
+  }
+
+  .bar {
+    padding: 0.45rem 0.7rem;
+    background: var(--head-bg);
+    border-bottom: 1px solid var(--panel-line);
+    color: var(--head-ink);
+  }
+
+  h2 {
+    font: 600 0.8125rem / 1.2 var(--font-pixel);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .body {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1rem 0.9rem 0.6rem;
+    font-size: var(--text-s);
+  }
+
+  .url {
+    overflow-wrap: anywhere;
+    padding: 0.4rem 0.55rem;
+    background: var(--chip-bg);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--panel-radius);
+    color: var(--link);
+    font-weight: 700;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.6rem 0.9rem 0.9rem;
+  }
+
+  button,
+  .go {
+    padding: 0.4rem 1.1rem;
+    border-radius: 999px;
+    font: 600 0.8125rem / 1.2 var(--font-pixel);
+    cursor: pointer;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .go {
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  button:active,
+  .go:active {
+    transform: scale(0.96);
+  }
+
+  .cancel {
+    background: var(--chip-bg);
+    border: 1px solid var(--panel-line);
+    box-shadow: inset 0 1px 0 #fff;
+    color: var(--chip-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .redirect[open] {
+      animation: none;
+    }
+  }
+</style>

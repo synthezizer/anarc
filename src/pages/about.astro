@@ -1,0 +1,21 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProfileShell from '@/components/shell/ProfileShell.astro';
+import Panel from '@/components/panels/Panel.astro';
+import { profile, site } from '@/site.config';
+---
+
+<BaseLayout title="Profile">
+  <ProfileShell tab="profile">
+    <Panel title={`about ${site.name}`} id="about" fixed>
+      <div class="prose">
+        <p>{profile.aboutMe}</p>
+        <p>Longer bio goes here. This page has room for as much as you want to say.</p>
+      </div>
+    </Panel>
+
+    <Panel title="who I'd like to meet" id="meet">
+      <p class="prose">{profile.wantToMeet}</p>
+    </Panel>
+  </ProfileShell>
+</BaseLayout>

@@ -1,0 +1,35 @@
+---
+/** Ambient bubble layer behind the page. Positions and motion come from src/motion/modules/bubbles.ts. */
+const count = 9;
+---
+
+<div class="bubbles" data-motion="bubbles" aria-hidden="true">
+  {Array.from({ length: count }, () => <span class="bubble" />)}
+</div>
+
+<style>
+  .bubbles {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* Glass bubble: bright specular dot, clear middle, light rim */
+  .bubble {
+    position: absolute;
+    top: 0;
+    opacity: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.95) 0 9%, rgb(255 255 255 / 0) 24%),
+      radial-gradient(circle, rgb(255 255 255 / 0) 58%, rgb(220 248 255 / 0.35) 82%, rgb(255 255 255 / 0.85) 100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bubbles {
+      display: none;
+    }
+  }
+</style>

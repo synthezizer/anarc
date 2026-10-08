@@ -1,0 +1,58 @@
+---
+/** Center-top status panel: the current headline, like a posted status. */
+import Avatar from '@/components/profile/Avatar.astro';
+import { profile, site } from '@/site.config';
+---
+
+<section class="status" aria-label="Status" data-glass>
+  <Avatar label={site.name} size="2.75rem" />
+  <div class="bubble">
+    <p class="label">status</p>
+    <p class="text">{profile.headline}</p>
+    <p class="mood">mood: {profile.mood}</p>
+  </div>
+</section>
+
+<style>
+  .status {
+    display: flex;
+    gap: 0.7rem;
+    align-items: start;
+    padding: 0.8rem 0.7rem;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--panel-radius);
+    box-shadow: var(--panel-shadow);
+    -webkit-backdrop-filter: var(--glass);
+    backdrop-filter: var(--glass);
+    color: var(--panel-ink);
+  }
+
+  .bubble {
+    flex: 1;
+    min-width: 0;
+    padding: 0.55rem 0.7rem;
+    background: var(--chip-bg);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--panel-radius);
+    color: var(--chip-ink);
+  }
+
+  .label {
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--text-xs);
+  }
+
+  .text {
+    margin-top: 0.15rem;
+    font-size: var(--text-m);
+  }
+
+  .mood {
+    margin-top: 0.35rem;
+    opacity: 0.7;
+    font-size: var(--text-xs);
+  }
+</style>

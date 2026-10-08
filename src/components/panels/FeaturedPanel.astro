@@ -1,0 +1,120 @@
+---
+/**
+ * Right column: featured projects (work entries with `featured: true`).
+ * Each card: wide thumbnail, title, status candy card, one-line summary.
+ * Hidden until something is featured.
+ */
+import { Image } from 'astro:assets';
+import { faFolderOpen } from '@fortawesome/free-solid-svg-icons';
+import Panel from './Panel.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { getFeatured } from '@/lib/work';
+
+const featured = await getFeatured();
+const flavor = { shipped: 'lime', working: 'tangerine', archived: 'grape' } as const;
+---
+
+{
+  featured.length > 0 && (
+    <Panel title="featured" id="featured" count={featured.length} action={{ label: 'view all', href: '/work#work' }}>
+      <ul class="cards">
+        {featured.map((entry) => (
+          <li>
+            <a class="card" href={`/work/${entry.id}`}>
+              {entry.data.cover ? (
+                <Image class="thumb" src={entry.data.cover} alt="" widths={[160, 320]} sizes="6rem" />
+              ) : (
+                <span class="thumb placeholder" aria-hidden="true">
+                  <Icon icon={faFolderOpen} />
+                </span>
+              )}
+              <span class="text">
+                <span class="title">{entry.data.title}</span>
+                <span class="chip candy" style={`--c: var(--candy-${flavor[entry.data.status]})`}>
+                  {entry.data.status}
+                </span>
+                <span class="summary">{entry.data.summary}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </Panel>
+  )
+}
+
+<style>
+  .cards {
+    display: grid;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .cards li {
+    border-top: 1px solid var(--rule);
+  }
+
+  .card {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.5rem 0.2rem;
+    color: var(--panel-ink);
+    text-decoration: none;
+  }
+
+  .card:hover .title {
+    text-decoration: underline;
+  }
+
+  .thumb {
+    flex-shrink: 0;
+    width: 6rem;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border: 1px solid var(--panel-line);
+    border-radius: 6px;
+  }
+
+  .placeholder {
+    display: grid;
+    place-items: center;
+    background: var(--tile-bg);
+    color: var(--tile-ink);
+    font-size: 1.1rem;
+    text-shadow: var(--pill-ink-shadow);
+  }
+
+  .text {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .title {
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--link);
+    font-size: var(--text-s);
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chip {
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font: 600 0.6875rem / 1.2 var(--font-pixel);
+  }
+
+  .summary {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--panel-muted);
+    font-size: var(--text-xs);
+  }
+</style>

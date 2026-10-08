@@ -1,0 +1,109 @@
+---
+/**
+ * The three-column profile layout every page lives in:
+ * left (photo, identity, nav) · center (tabs + page content) · right (panels).
+ * Pages fill the center via the default slot; the right column can be
+ * replaced through the "right" slot.
+ */
+import ProfileCard from '@/components/profile/ProfileCard.astro';
+import SideNav from './SideNav.astro';
+import Tabs from './Tabs.astro';
+import ProfileBanner from './ProfileBanner.astro';
+import Gadgets from '@/components/gadgets/Gadgets.astro';
+import BeatPlayer from '@/components/player/BeatPlayer.astro';
+import type { TabKey } from './tab-keys';
+import FeaturedPanel from '@/components/panels/FeaturedPanel.astro';
+import ProjectsPanel from '@/components/panels/ProjectsPanel.astro';
+import ContactPanel from '@/components/panels/ContactPanel.astro';
+
+interface Props {
+  tab: TabKey;
+}
+
+const { tab } = Astro.props;
+const current = Astro.url.pathname;
+---
+
+<div class="shell container" data-motion="materialize">
+  <div class="banner-row">
+    <ProfileBanner />
+  </div>
+
+  <aside class="left" transition:name="col-left">
+    <ProfileCard />
+    <SideNav current={current} />
+    <Gadgets />
+  </aside>
+
+  <div class="center" transition:name="col-center">
+    <Tabs active={tab} />
+    <slot />
+  </div>
+
+  <aside class="right" transition:name="col-right">
+    {
+      Astro.slots.has('right') ? (
+        <slot name="right" />
+      ) : (
+        <>
+          <BeatPlayer />
+          <FeaturedPanel />
+          <ProjectsPanel />
+          <ContactPanel />
+        </>
+      )
+    }
+  </aside>
+</div>
+
+<style>
+  .shell {
+    padding-top: var(--space-m);
+    display: grid;
+    gap: var(--space-m);
+    align-items: start;
+  }
+
+  /* Columns ride up over the banner's faded bottom edge */
+  .banner-row {
+    grid-column: 1 / -1;
+    margin-bottom: clamp(-6rem, -8vw, -2.5rem);
+  }
+
+  .banner-row ~ * {
+    position: relative;
+  }
+
+  .left,
+  .center,
+  .right {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+    min-width: 0;
+  }
+
+  .left {
+    gap: var(--space-m);
+  }
+
+  @media (min-width: 48rem) {
+    .shell {
+      grid-template-columns: 11.5rem minmax(0, 1fr);
+    }
+
+    .right {
+      grid-column: 2;
+    }
+  }
+
+  @media (min-width: 68rem) {
+    .shell {
+      grid-template-columns: 11.5rem minmax(0, 1fr) 18rem;
+    }
+
+    .right {
+      grid-column: 3;
+    }
+  }
+</style>

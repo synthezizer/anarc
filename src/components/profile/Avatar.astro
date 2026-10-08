@@ -1,0 +1,55 @@
+---
+/** Small square avatar: an image, or a monogram when there is none. */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  label: string;
+  image?: ImageMetadata | undefined;
+  size?: string;
+}
+
+const { label, image, size = '2.5rem' } = Astro.props;
+// Percentage sizes fill their container; the monogram then uses a fixed size.
+const fluid = size.endsWith('%');
+---
+
+{
+  image ? (
+    <Image class="avatar" src={image} alt="" widths={[96, 192]} sizes={fluid ? '6rem' : size} style={`--size:${size}`} />
+  ) : (
+    <span class:list={['avatar monogram', { fluid }]} aria-hidden="true" style={`--size:${size}`}>
+      {label.charAt(0)}
+    </span>
+  )
+}
+
+<style>
+  .avatar {
+    flex-shrink: 0;
+    align-self: start;
+    width: var(--size);
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: 1px solid var(--panel-line);
+    border-radius: var(--panel-radius);
+  }
+
+  .monogram {
+    display: grid;
+    place-items: center;
+    background: var(--tile-bg);
+    color: var(--tile-ink);
+    font-family: var(--font-name);
+    font-size: calc(var(--size) * 0.5);
+    font-weight: var(--name-weight);
+    font-stretch: var(--name-stretch);
+    line-height: 1;
+    text-transform: var(--name-transform);
+    text-shadow: var(--pill-ink-shadow);
+  }
+
+  .monogram.fluid {
+    font-size: 1.6rem;
+  }
+</style>

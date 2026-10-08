@@ -1,0 +1,97 @@
+---
+/**
+ * Vista-sidebar style month calendar. The grid is filled in the browser by
+ * src/gadgets/index.ts so it always shows the real current month.
+ */
+const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+---
+
+<section class="calendar" data-calendar data-glass aria-label="Calendar">
+  <header class="head" data-sheen>
+    <p class="month" data-calendar-title>&nbsp;</p>
+    <p class="today" data-calendar-today>&nbsp;</p>
+  </header>
+  <div class="grid" role="presentation">
+    {weekdays.map((day) => <span class="weekday" aria-hidden="true">{day}</span>)}
+    <div class="days" data-calendar-days></div>
+  </div>
+</section>
+
+<style>
+  .calendar {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--panel-radius);
+    box-shadow: var(--panel-shadow);
+    -webkit-backdrop-filter: var(--glass);
+    backdrop-filter: var(--glass);
+    color: var(--panel-ink);
+    overflow: hidden;
+  }
+
+  .head {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+    padding: 0.4rem 0.6rem;
+    background: var(--head-bg);
+    border-bottom: 1px solid var(--panel-line);
+    color: var(--head-ink);
+  }
+
+  .head::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 35%, rgb(255 255 255 / 0.9) 50%, transparent 65%);
+    transform: translateX(var(--sheen, -120%));
+    pointer-events: none;
+  }
+
+  .month {
+    font: 600 0.8125rem / 1.2 var(--font-pixel);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .today {
+    font-size: var(--text-xs);
+    opacity: 0.75;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;
+    padding: 0.5rem;
+    font-size: 0.625rem;
+    text-align: center;
+  }
+
+  .weekday {
+    padding-bottom: 0.2rem;
+    color: var(--panel-muted);
+    font-weight: 700;
+  }
+
+  .days {
+    display: contents;
+  }
+
+  .days :global(span) {
+    padding: 0.2rem 0;
+    border-radius: 999px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .days :global(.is-today) {
+    background: var(--pill-bg);
+    box-shadow: inset 0 0 0 1px var(--pill-edge);
+    color: var(--pill-ink);
+    font-weight: 700;
+    text-shadow: var(--pill-ink-shadow);
+  }
+</style>

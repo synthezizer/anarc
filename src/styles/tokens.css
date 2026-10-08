@@ -1,0 +1,104 @@
+/*
+ * anarc.cc design tokens. Every colour, face, size and timing lives here.
+ * Layout: a dense mid-2000s social profile (three columns of panels).
+ * Skin: Frutiger Aero. Glass panels, split-gloss bars, aqua pills, sky glow.
+ */
+
+/* ---------- Structure (shared by every skin) ---------- */
+:root {
+  --text-xs: 0.6875rem; /* 11px */
+  --text-s: 0.75rem; /* 12px */
+  --text-m: 0.875rem; /* 14px */
+  --headline: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
+
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2.5rem;
+  --space-xl: 4rem;
+
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --max-width: 76rem;
+  --measure: 60ch;
+
+  --dur-fast: 150ms;
+  --dur-base: 300ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+  }
+}
+
+/* ---------- Skin: Frutiger Aero ---------- */
+:root {
+  color-scheme: light;
+
+  /* Sky: deep blue overhead to pale aqua at the horizon, with a sun bloom
+     top-right and a grass-green glow bottom-left. */
+  --page-bg:
+    radial-gradient(55% 45% at 85% 0%, rgb(255 255 255 / 0.6), transparent 70%),
+    radial-gradient(60% 45% at 0% 100%, rgb(120 228 128 / 0.5), transparent 70%),
+    linear-gradient(180deg, #07457f 0%, #1580cb 38%, #62c4f0 72%, #d2f2ff 100%) fixed #1580cb;
+  --page-ink: #fff;
+  --page-muted: rgb(255 255 255 / 0.82);
+  --page-link: #fff;
+  --page-shadow: 0 1px 2px rgb(0 40 90 / 0.55);
+
+  /* Glass */
+  --panel-bg: rgb(255 255 255 / 0.72);
+  --glass: blur(18px) saturate(1.6);
+  --panel-ink: #06294d;
+  --panel-muted: #3a5a7a;
+  --panel-line: rgb(8 60 110 / 0.38);
+  --panel-radius: 10px;
+  --panel-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.75),
+    inset 0 1px 0 1px rgb(255 255 255 / 0.9),
+    0 10px 30px rgb(0 40 90 / 0.28);
+  --rule: rgb(8 60 110 / 0.14);
+
+  /* Split gloss: bright upper half, a hard horizon, a tinted lower half */
+  --head-bg: linear-gradient(180deg, rgb(255 255 255 / 0.96) 0%, rgb(226 244 255 / 0.92) 49%, rgb(170 219 247 / 0.92) 51%, rgb(208 237 255 / 0.92) 100%);
+  --head-ink: #06345f;
+
+  /* Aqua pill (active tab, current nav, pressed) */
+  --pill-bg: linear-gradient(180deg, #8fd6fb 0%, #4fb6ec 48%, #1689cf 52%, #3fb0ea 100%);
+  --pill-edge: #0b6aa6;
+  --pill-ink: #fff;
+  --pill-ink-shadow: 0 1px 1px rgb(0 60 110 / 0.6);
+
+  --link: #0a59b3;
+  --accent: #1aa0e0;
+
+  --tile-bg: linear-gradient(180deg, #e4f8ff 0%, #9fdcf8 48%, #4cb6ea 52%, #8ad8f9 100%);
+  --tile-ink: #fff;
+  --chip-bg: linear-gradient(180deg, rgb(255 255 255 / 0.95) 0%, rgb(222 240 252 / 0.92) 100%);
+  --chip-ink: #06345f;
+
+  /* iMac G3 candy plastic flavours */
+  --candy-bondi: #0aa6c9;
+  --candy-tangerine: #ff8a1f;
+  --candy-grape: #8a5bd6;
+  --candy-lime: #5fbf2a;
+  --candy-berry: #ff4f7b;
+
+  --font-pixel: 'Pixelify Sans', 'Istok Web', monospace;
+  --font-ui: 'Istok Web', 'Segoe UI', Frutiger, 'Frutiger Linotype', Tahoma, sans-serif;
+  --font-name: 'Istok Web', 'Segoe UI', Frutiger, sans-serif;
+  --name-weight: 400;
+  --name-stretch: normal;
+  --name-transform: none;
+  --name-tracking: -0.01em;
+  --name-color: #06345f;
+  --name-shadow: 0 1px 0 #fff;
+  --name-scale: 1.2;
+
+  --selection-bg: #1aa0e0;
+  --selection-ink: #fff;
+}

@@ -1,0 +1,142 @@
+---
+/**
+ * Profile banner. Drop ONE image named banner.(png|jpg|jpeg|webp|avif|gif) into
+ * src/assets/ (optimized) or public/ (served as-is). Capitalisation does not matter.
+ * Sizing follows a Discord profile banner: 5:2 and never smaller than 600×240.
+ * Below 600px wide the height stays 240px and the sides crop, keeping the middle.
+ * GIFs are served as-is so animation survives; other formats are optimized.
+ */
+import { readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+import profileData from '@/data/profile.json';
+
+// Optimized path: any image directly in src/assets. The one named in
+// profile.json "banner" (set from /admin) wins; otherwise banner.* is used.
+const allAssets = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/*.{png,jpg,jpeg,webp,avif,gif,PNG,JPG,JPEG,WEBP,AVIF,GIF}',
+  { eager: true },
+);
+const chosen = (profileData as { banner?: string }).banner;
+const chosenKey = chosen ? '/src/assets/' + chosen.replace(/^.*?assets\//, '') : undefined;
+const pickedKey =
+  (chosenKey && chosenKey in allAssets ? chosenKey : undefined) ??
+  Object.keys(allAssets).find((path) => /\/banner\.[a-z]+$/i.test(path));
+const assets: Record<string, { default: ImageMetadata }> = pickedKey ? { [pickedKey]: allAssets[pickedKey]! } : {};
+// As-is path: public/banner.* is served untouched at /banner.* (checked at build time).
+const bannerName = /^banner\.(png|jpe?g|webp|avif|gif)$/i;
+const publicFile = readdirSync(join(process.cwd(), 'public')).find((file: string) => bannerName.test(file));
+
+const banner = Object.values(assets)[0]?.default;
+const publicSrc = publicFile ? `/${publicFile}` : undefined;
+const isGif = banner?.format === 'gif';
+
+// Cache-bust by file modification time so swapping in a same-sized file
+// always shows the new one (production builds also hash by content).
+const assetPath = Object.keys(assets)[0];
+const sourceFile = assetPath ? join(process.cwd(), assetPath) : publicFile ? join(process.cwd(), 'public', publicFile) : undefined;
+const version = sourceFile ? Math.round(statSync(sourceFile).mtimeMs).toString(36) : '';
+const bust = (url: string) => `${url}${url.includes('?') ? '&' : '?'}v=${version}`;
+
+const optimized =
+  banner && !isGif
+    ? await getImage({ src: banner, widths: [420], sizes: '420px' })
+    : undefined;
+const srcset = optimized?.srcSet.values.map((entry) => `${bust(entry.url)} ${entry.descriptor}`).join(', ');
+
+// Stays put across tab switches, but a different banner file gets a new
+// identity so it always replaces the old one.
+const persistKey = `banner:${version || 'none'}`;
+---
+
+<div class="banner-frame" data-motion="banner-drift" transition:persist={persistKey}>
+<div class="banner">
+  {
+    banner ? (
+      optimized ? (
+        <img
+          src={bust(optimized.src)}
+          srcset={srcset}
+          sizes={optimized.attributes['sizes']}
+          width={optimized.attributes['width']}
+          height={optimized.attributes['height']}
+          alt=""
+          decoding="async"
+          fetchpriority="high"
+        />
+      ) : (
+        <img src={bust(banner.src)} width={banner.width} height={banner.height} alt="" fetchpriority="high" />
+      )
+    ) : publicSrc ? (
+      <img src={bust(publicSrc)} alt="" fetchpriority="high" />
+    ) : (
+      <p class="empty">banner goes here: add banner.jpg / .png to src/assets/ or public/ (600×240 minimum, 5:2)</p>
+    )
+  }
+</div>
+</div>
+
+<style>
+  /*
+   * No frame: the banner melts into the sky. Its top and bottom fade out and its
+   * sides feather, then it eases in on load (instantly under reduced motion).
+   */
+  .banner-frame {
+    container-type: inline-size;
+  }
+
+  /* 5:2 of the available width, never shorter than 240px (crops the sides) */
+  .banner {
+    width: 100%;
+    height: max(240px, 40cqi);
+    overflow: hidden;
+    -webkit-mask-image:
+      linear-gradient(to bottom, transparent 0, #000 22%, #000 55%, transparent 100%),
+      linear-gradient(to right, transparent 0, #000 5%, #000 95%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to bottom, transparent 0, #000 22%, #000 55%, transparent 100%),
+      linear-gradient(to right, transparent 0, #000 5%, #000 95%, transparent 100%);
+    mask-composite: intersect;
+    animation: banner-in 1.4s var(--ease-out) both;
+  }
+
+  @keyframes banner-in {
+    from {
+      opacity: 0;
+      transform: scale(1.03);
+      filter: blur(8px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .banner {
+      animation: none;
+    }
+  }
+
+  /* Bit-crush: a 420px source blown up with hard pixel edges, palette reduced */
+  .banner img,
+  .banner :global(img) {
+    image-rendering: pixelated;
+    filter: url(#bitcrush);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .empty {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: var(--space-s);
+    background: rgb(255 255 255 / 0.12);
+    color: var(--page-ink);
+    font-size: var(--text-xs);
+    text-align: center;
+    text-shadow: var(--page-shadow);
+  }
+</style>

@@ -1,0 +1,71 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProfileShell from '@/components/shell/ProfileShell.astro';
+import Panel from '@/components/panels/Panel.astro';
+import Avatar from '@/components/profile/Avatar.astro';
+import { getWork } from '@/lib/work';
+import { site } from '@/site.config';
+
+const entries = await getWork();
+---
+
+<BaseLayout title="Work">
+  <ProfileShell tab="work">
+    <Panel title={`${site.name}'s work`} id="work" count={entries.length} fixed>
+      {
+        entries.length > 0 ? (
+          <ul class="grid">
+            {entries.map((entry) => (
+              <li>
+                <a href={`/work/${entry.id}`}>
+                  <Avatar label={entry.data.title} image={entry.data.cover} size="100%" />
+                  <span class="label">{entry.data.title}</span>
+                  <span class="summary">{entry.data.summary}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="empty">nothing here yet</p>
+        )
+      }
+    </Panel>
+  </ProfileShell>
+</BaseLayout>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    gap: 1rem 0.8rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: grid;
+    gap: 0.3rem;
+    text-decoration: none;
+  }
+
+  .label {
+    font-size: var(--text-s);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .summary {
+    color: var(--panel-muted);
+    font-size: var(--text-xs);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .empty {
+    color: var(--panel-muted);
+    font-style: italic;
+  }
+</style>

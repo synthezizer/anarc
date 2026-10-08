@@ -1,0 +1,39 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProfileShell from '@/components/shell/ProfileShell.astro';
+import StatusBox from '@/components/feed/StatusBox.astro';
+import FeedItem from '@/components/feed/FeedItem.astro';
+import StatusPost from '@/components/feed/StatusPost.astro';
+import Panel from '@/components/panels/Panel.astro';
+import { getFeed } from '@/lib/feed';
+import { profile } from '@/site.config';
+
+const updates = await getFeed();
+---
+
+<BaseLayout>
+  <ProfileShell tab="home">
+    <StatusBox />
+
+    <Panel title="about me" id="about-me" action={{ label: 'full profile', href: '/about#about' }}>
+      <p class="prose">{profile.aboutMe}</p>
+    </Panel>
+
+    <Panel title="updates" id="updates" count={updates.length} fixed>
+      {
+        updates.length > 0 ? (
+          updates.map((item) => (item.kind === 'update' ? <StatusPost entry={item.entry} /> : <FeedItem entry={item.entry} />))
+        ) : (
+          <p class="empty">no updates yet</p>
+        )
+      }
+    </Panel>
+  </ProfileShell>
+</BaseLayout>
+
+<style>
+  .empty {
+    color: var(--panel-muted);
+    font-style: italic;
+  }
+</style>

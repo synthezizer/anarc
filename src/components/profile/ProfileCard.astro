@@ -1,0 +1,226 @@
+---
+/** Left-column identity: framed photo, name, details. (Quote and mood live in the status box.) */
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import Icon from '@/components/ui/Icon.astro';
+import { formatShortDate } from '@/lib/work';
+import { profile, site } from '@/site.config';
+
+const lastLogin = formatShortDate(new Date()); // the build date
+---
+
+<div class="card" data-glass>
+  <div class="photo" role="img" aria-label="Profile photo placeholder">
+    <span>photo</span>
+  </div>
+  {
+    profile.aliases.length > 0 ? (
+      <details class="name-menu">
+        <summary class="name name-face">
+          {site.name}
+          <span class="chevron" aria-hidden="true"><Icon icon={faChevronDown} /></span>
+          <span class="visually-hidden">, show aliases</span>
+        </summary>
+        <div class="menu">
+          <p class="aka">a.k.a.</p>
+          <ul>
+            {profile.aliases.map((alias) => (
+              <li>{alias}</li>
+            ))}
+          </ul>
+        </div>
+      </details>
+    ) : (
+      <p class="name name-face">{site.name}</p>
+    )
+  }
+  <dl>
+    <div><dt>location:</dt><dd>{profile.location}</dd></div>
+    <div><dt>last login:</dt><dd>{lastLogin}</dd></div>
+  </dl>
+</div>
+
+<script>
+  // Close the alias dropdown on outside click or Escape.
+  document.addEventListener('click', (event) => {
+    document.querySelectorAll<HTMLDetailsElement>('.name-menu[open]').forEach((menu) => {
+      if (!menu.contains(event.target as Node)) menu.open = false;
+    });
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    document.querySelectorAll<HTMLDetailsElement>('.name-menu[open]').forEach((menu) => {
+      menu.open = false;
+      menu.querySelector('summary')?.focus();
+    });
+  });
+</script>
+
+<style>
+  .card {
+    position: relative;
+    z-index: 2; /* lets the alias dropdown sit above the nav below */
+    display: grid;
+    gap: var(--space-2xs);
+    padding: 0.6rem;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--panel-radius);
+    box-shadow: var(--panel-shadow);
+    -webkit-backdrop-filter: var(--glass);
+    backdrop-filter: var(--glass);
+    color: var(--panel-ink);
+  }
+
+  .photo {
+    display: grid;
+    place-items: end start;
+    aspect-ratio: 1;
+    padding: 0.5rem;
+    background: var(--tile-bg);
+    border: 1px solid var(--panel-line);
+    border-radius: calc(var(--panel-radius) - 4px);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9);
+    color: var(--tile-ink);
+    text-shadow: var(--pill-ink-shadow);
+    font-size: var(--text-xs);
+  }
+
+  .name {
+    margin-top: var(--space-2xs);
+    color: var(--name-color);
+    font-size: calc(1.35rem * var(--name-scale));
+    line-height: 1.05;
+    text-shadow: var(--name-shadow);
+    overflow-wrap: anywhere;
+  }
+
+  /* Name as a dropdown: click "andy ▾" to see aliases */
+  .name-menu {
+    position: relative;
+  }
+
+  .name-menu summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .name-menu summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .chevron {
+    display: grid;
+    place-items: center;
+    width: 1rem;
+    height: 1rem;
+    background: var(--chip-bg);
+    border: 1px solid var(--panel-line);
+    border-radius: 50%;
+    box-shadow: inset 0 1px 0 #fff;
+    color: var(--chip-ink);
+    font-size: 0.5rem;
+    text-shadow: none;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .name-menu[open] .chevron {
+    transform: rotate(180deg);
+  }
+
+  .menu {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: calc(100% + 0.35rem);
+    z-index: 5;
+    display: grid;
+    gap: 0.35rem;
+    min-width: 100%;
+    padding: 0.55rem 0.6rem;
+    background: rgb(255 255 255 / 0.85);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--panel-radius);
+    box-shadow: var(--panel-shadow);
+    -webkit-backdrop-filter: var(--glass);
+    backdrop-filter: var(--glass);
+    text-shadow: none;
+  }
+
+  .name-menu[open] .menu {
+    animation: drop var(--dur-base) var(--ease-out);
+  }
+
+  @keyframes drop {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  .aka {
+    color: var(--panel-muted);
+    font-size: var(--text-xs);
+    font-style: italic;
+  }
+
+  .menu ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Small glass chips */
+  .menu li {
+    padding: 0.1rem 0.5rem;
+    background: var(--chip-bg);
+    border: 1px solid var(--panel-line);
+    border-radius: 999px;
+    box-shadow: inset 0 1px 0 #fff;
+    color: var(--chip-ink);
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    font-weight: 700;
+  }
+
+  dl {
+    display: grid;
+    gap: 0.1rem;
+    margin-top: var(--space-2xs);
+    font-size: var(--text-xs);
+  }
+
+  dl div {
+    display: flex;
+    gap: 0.35em;
+  }
+
+  dt {
+    color: var(--panel-muted);
+  }
+
+  /* Phones: small photo beside the details instead of a full-width block */
+  @media (max-width: 47.99rem) {
+    .card {
+      grid-template-columns: 6.5rem minmax(0, 1fr);
+      column-gap: var(--space-s);
+      align-items: start;
+    }
+
+    .photo {
+      grid-row: span 5;
+    }
+
+    .name {
+      margin-top: 0;
+    }
+
+    dl {
+      margin-top: 0;
+    }
+  }
+
+</style>

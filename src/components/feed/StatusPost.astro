@@ -1,0 +1,72 @@
+---
+/** A status update in the feed: avatar, who + when, and the post text. */
+import { render } from 'astro:content';
+import Avatar from '@/components/profile/Avatar.astro';
+import type { UpdateEntry } from '@/lib/feed';
+import { formatDate } from '@/lib/work';
+import { site } from '@/site.config';
+
+interface Props {
+  entry: UpdateEntry;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<article class="item">
+  <Avatar label={site.name} size="2.25rem" />
+  <div class="main">
+    <header>
+      <p class="who"><strong>{site.name}</strong> posted:</p>
+      <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+    </header>
+    <div class="bubble">
+      <Content />
+    </div>
+  </div>
+</article>
+
+<style>
+  .item {
+    display: flex;
+    gap: 0.7rem;
+    padding-block: 0.8rem;
+  }
+
+  .main {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-s);
+    font-size: var(--text-xs);
+  }
+
+  .who strong {
+    color: var(--panel-ink);
+  }
+
+  time {
+    flex-shrink: 0;
+    color: var(--panel-muted);
+  }
+
+  .bubble {
+    padding: 0.55rem 0.7rem;
+    background: var(--chip-bg);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--panel-radius);
+    color: var(--chip-ink);
+    font-size: var(--text-m);
+  }
+
+  .bubble :global(p + p) {
+    margin-top: 0.6em;
+  }
+</style>

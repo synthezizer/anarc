@@ -1,0 +1,213 @@
+---
+/**
+ * The rounded profile panel: a header row (title, count, optional link, ▾)
+ * over a white body. Collapsible by default, using native <details>.
+ */
+import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
+import { faArrowUpRightFromSquare, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import Icon from '@/components/ui/Icon.astro';
+
+interface Props {
+  title: string;
+  count?: number | undefined;
+  /** With `iconOnly`, only the icon shows (larger); `label` becomes its accessible name. */
+  action?: { label: string; href: string; icon?: IconDefinition; iconOnly?: boolean } | undefined;
+  /** Render as a plain block with no collapse toggle. */
+  fixed?: boolean;
+  id?: string;
+  /** Space-separated motion module names, see src/motion/registry.ts. */
+  motion?: string;
+}
+
+const { title, count, action, fixed = false, id, motion } = Astro.props;
+const external = action?.href.startsWith('http') ?? false;
+---
+
+{
+  fixed ? (
+    <section class="panel" id={id} data-motion={motion} data-glass>
+      <div class="head" data-sheen>
+        <h2 class="title">
+          {title}
+          {count !== undefined && <span class="count">({count})</span>}
+        </h2>
+        {action && (
+          <a
+            class:list={['action', { 'icon-only': action.iconOnly }]}
+            href={action.href}
+            aria-label={action.iconOnly ? action.label : undefined}
+            title={action.iconOnly ? action.label : undefined}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener' : undefined}
+          >
+            {action.icon && <Icon icon={action.icon} />}
+            {!action.iconOnly && action.label}
+            {external && !action.iconOnly && <Icon icon={faArrowUpRightFromSquare} class="ext" />}
+          </a>
+        )}
+      </div>
+      <div class="body">
+        <slot />
+      </div>
+    </section>
+  ) : (
+    <details class="panel" id={id} data-motion={motion} data-glass open>
+      <summary class="head" data-sheen>
+        <h2 class="title">
+          {title}
+          {count !== undefined && <span class="count">({count})</span>}
+        </h2>
+        {action && (
+          <a
+            class:list={['action', { 'icon-only': action.iconOnly }]}
+            href={action.href}
+            aria-label={action.iconOnly ? action.label : undefined}
+            title={action.iconOnly ? action.label : undefined}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener' : undefined}
+          >
+            {action.icon && <Icon icon={action.icon} />}
+            {!action.iconOnly && action.label}
+            {external && !action.iconOnly && <Icon icon={faArrowUpRightFromSquare} class="ext" />}
+          </a>
+        )}
+        <span class="chevron" aria-hidden="true"><Icon icon={faChevronDown} /></span>
+      </summary>
+      <div class="body">
+        <slot />
+      </div>
+    </details>
+  )
+}
+
+<style>
+  .panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--panel-radius);
+    box-shadow: var(--panel-shadow);
+    -webkit-backdrop-filter: var(--glass);
+    backdrop-filter: var(--glass);
+    color: var(--panel-ink);
+    overflow: hidden;
+  }
+
+  .panel :global(a) {
+    color: var(--link);
+  }
+
+  .head {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: 0.4rem 0.6rem;
+    background: var(--head-bg);
+    border-bottom: 1px solid var(--panel-line);
+    color: var(--head-ink);
+    list-style: none;
+  }
+
+  summary.head {
+    cursor: pointer;
+  }
+
+  /* Glint: a band of light parked off the left edge; motion sweeps it across */
+  .head::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 35%, rgb(255 255 255 / 0.9) 50%, transparent 65%);
+    transform: translateX(var(--sheen, -120%));
+    pointer-events: none;
+  }
+
+  summary.head::after {
+    transition: transform 0s;
+  }
+
+  summary.head:hover::after {
+    --sheen: 220%;
+    transition: transform 0.9s var(--ease-out);
+  }
+
+  /* Smooth collapse/expand where supported; instant elsewhere */
+  details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size var(--dur-base) var(--ease-out),
+      content-visibility var(--dur-base) allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+  }
+
+  summary.head::-webkit-details-marker {
+    display: none;
+  }
+
+  details:not([open]) > .head {
+    border-bottom: 0;
+  }
+
+  .title {
+    flex: 1;
+    min-width: 0;
+    color: inherit;
+    font: 600 0.8125rem / 1.2 var(--font-pixel);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .count {
+    margin-left: 0.35em;
+    font-weight: 400;
+    opacity: 0.75;
+  }
+
+  .head .action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    color: inherit;
+    font-size: var(--text-xs);
+  }
+
+  /* Logo-only link: bigger, no underline, a little lift on hover */
+  .head .action.icon-only {
+    font-size: 1.15rem;
+    text-decoration: none;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  .head .action.icon-only:hover {
+    transform: scale(1.12);
+  }
+
+  .head .action :global(.ext) {
+    font-size: 0.75em;
+    opacity: 0.7;
+  }
+
+  .chevron {
+    display: grid;
+    place-items: center;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.5rem;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+
+  details:not([open]) .chevron {
+    transform: rotate(-90deg);
+  }
+
+  .body {
+    padding: 0.8rem 0.7rem;
+  }
+</style>

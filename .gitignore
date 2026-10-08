@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+.DS_Store
+.impeccable/config.local.json
+
+# Original audio masters (too big to deploy; MP3 copies live in src/assets/beats)
+masters/
+
+# Local AI-tool folders (skills and binaries, not part of the site)
+.agent/
+.agents/
+.codex/
+.cursor/
+.gemini/
+.claude/settings.local.json
+.claude/skills/
+.claude/agents/
+.impeccable/hook.cache.json

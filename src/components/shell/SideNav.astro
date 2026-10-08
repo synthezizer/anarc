@@ -1,0 +1,93 @@
+---
+/** Left-column link list with Font Awesome icons. */
+import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
+import { faEnvelope, faNewspaper, faTableCellsLarge, faUser } from '@fortawesome/free-solid-svg-icons';
+import Icon from '@/components/ui/Icon.astro';
+interface Item {
+  label: string;
+  href: string;
+  icon: 'updates' | 'profile' | 'work' | 'contact';
+  flavor: string;
+}
+
+interface Props {
+  current: string;
+}
+
+const { current } = Astro.props;
+
+const items: Item[] = [
+  { label: 'updates', href: '/#updates', icon: 'updates', flavor: 'bondi' },
+  { label: 'profile', href: '/about#about', icon: 'profile', flavor: 'tangerine' },
+  { label: 'work', href: '/work#work', icon: 'work', flavor: 'grape' },
+  { label: 'contact', href: '/about#contact', icon: 'contact', flavor: 'lime' },
+];
+
+const icons: Record<Item['icon'], IconDefinition> = {
+  updates: faNewspaper,
+  profile: faUser,
+  work: faTableCellsLarge,
+  contact: faEnvelope,
+};
+
+// Current = same page, except contact (a panel shown on every page).
+const isCurrent = (item: Item) => item.icon !== 'contact' && item.href.split('#')[0] === current;
+---
+
+<nav aria-label="Profile" data-glass>
+  <ul>
+    {
+      items.map((item) => (
+        <li>
+          <a href={item.href} aria-current={isCurrent(item) ? 'page' : undefined}>
+            <span class="icon candy" style={`--c: var(--candy-${item.flavor})`} aria-hidden="true">
+              <Icon icon={icons[item.icon]} />
+            </span>
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  ul {
+    display: grid;
+    gap: 0.3rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    color: var(--page-ink);
+    text-shadow: var(--page-shadow);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-s);
+  }
+
+  .icon {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 6px;
+  }
+
+  .icon {
+    font-size: 0.7rem;
+  }
+
+  a[aria-current='page'] {
+    color: var(--page-ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  a[aria-current='page'] .icon {
+    outline: 2px solid rgb(255 255 255 / 0.85);
+    outline-offset: 1px;
+  }
+</style>

@@ -1,0 +1,141 @@
+---
+/** One update in the feed: who posted, when, a line of text, and a media card. */
+import { Image } from 'astro:assets';
+import Avatar from '@/components/profile/Avatar.astro';
+import { formatDate, type WorkEntry } from '@/lib/work';
+import { site } from '@/site.config';
+
+interface Props {
+  entry: WorkEntry;
+}
+
+const { entry } = Astro.props;
+const { title, summary, date, cover, coverAlt, tags } = entry.data;
+const href = `/work/${entry.id}`;
+---
+
+<article class="item">
+  <Avatar label={site.name} size="2.25rem" />
+  <div class="main">
+    <header>
+      <p class="who"><strong>{site.name}</strong> posted new work</p>
+      <time datetime={date.toISOString()}>{formatDate(date)}</time>
+    </header>
+
+    <a class="card" href={href}>
+      {
+        cover ? (
+          <Image class="thumb" src={cover} alt={coverAlt ?? ''} widths={[160, 320]} sizes="7.5rem" />
+        ) : (
+          <span class="thumb placeholder" aria-hidden="true">{title.charAt(0)}</span>
+        )
+      }
+      <span class="text">
+        <span class="title">{title}</span>
+        <span class="summary">{summary}</span>
+        {tags.length > 0 && <span class="tags">{tags.join(' · ')}</span>}
+      </span>
+    </a>
+  </div>
+</article>
+
+<style>
+  .item {
+    display: flex;
+    gap: 0.7rem;
+    padding-block: 0.8rem;
+  }
+
+  .item + :global(.item) {
+    border-top: 1px solid var(--rule);
+  }
+
+  .main {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-s);
+    font-size: var(--text-xs);
+  }
+
+  .who strong {
+    color: var(--panel-ink);
+  }
+
+  time {
+    flex-shrink: 0;
+    color: var(--panel-muted);
+  }
+
+  .item .card {
+    display: flex;
+    gap: 0.7rem;
+    padding: 0.5rem;
+    border: 1px solid var(--panel-line);
+    border-radius: var(--panel-radius);
+    color: var(--panel-ink);
+    text-decoration: none;
+  }
+
+  .item .card:hover {
+    background: var(--chip-bg);
+  }
+
+  .thumb {
+    flex-shrink: 0;
+    width: 7.5rem;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: var(--panel-radius);
+  }
+
+  @media (max-width: 30rem) {
+    .thumb {
+      width: 4.5rem;
+      aspect-ratio: 1;
+    }
+  }
+
+  .placeholder {
+    display: grid;
+    place-items: center;
+    background: var(--tile-bg);
+    color: var(--tile-ink);
+    font-family: var(--font-name);
+    font-size: 2rem;
+    font-weight: var(--name-weight);
+    font-stretch: var(--name-stretch);
+    line-height: 1;
+    text-transform: var(--name-transform);
+  }
+
+  .text {
+    display: grid;
+    gap: 0.2rem;
+    align-content: start;
+    min-width: 0;
+  }
+
+  .title {
+    color: var(--link);
+    font-size: var(--text-s);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .summary {
+    font-size: var(--text-xs);
+  }
+
+  .tags {
+    color: var(--panel-muted);
+    font-size: var(--text-xs);
+  }
+</style>

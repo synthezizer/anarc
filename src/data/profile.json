@@ -1,0 +1,12 @@
+{
+  "name": "andy",
+  "description": "Personal website.",
+  "aliases": ["synthwon", "anarchy"],
+  "mood": "mood goes here",
+  "headline": "\"a quote or one-liner goes here\"",
+  "location": "location",
+  "aboutMe": "A few lines about you go here.",
+  "wantToMeet": "Who you would like to meet goes here.",
+  "spotify": "https://open.spotify.com/artist/1aCegNbiLCuZxmU1kjXUx6",
+  "contact": []
+}

@@ -1,0 +1,78 @@
+---
+/** Center-column tab row: home | profile | work. */
+import type { TabKey } from './tab-keys';
+
+interface Props {
+  active: TabKey;
+}
+
+const { active } = Astro.props;
+
+const tabs: { key: TabKey; label: string; href: string; flavor: string }[] = [
+  { key: 'home', label: 'home', href: '/', flavor: 'bondi' },
+  { key: 'profile', label: 'profile', href: '/about', flavor: 'tangerine' },
+  { key: 'work', label: 'work', href: '/work', flavor: 'grape' },
+];
+---
+
+<nav class="tabs" aria-label="Sections" data-glass>
+  {
+    tabs.map((tab) => (
+      <a
+        class="candy"
+        style={`--c: var(--candy-${tab.flavor})`}
+        href={tab.href}
+        aria-current={tab.key === active ? 'page' : undefined}
+      >
+        {tab.label}
+      </a>
+    ))
+  }
+</nav>
+
+<style>
+  .tabs {
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  a {
+    position: relative;
+    overflow: hidden;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    font: 600 0.875rem / 1.2 var(--font-pixel);
+    text-decoration: none;
+    opacity: 0.8;
+  }
+
+  a:hover {
+    opacity: 1;
+  }
+
+  /* Hover glint across the pill */
+  a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 35%, rgb(255 255 255 / 0.85) 50%, transparent 65%);
+    transform: translateX(-120%);
+    pointer-events: none;
+  }
+
+  a:hover::after {
+    transform: translateX(220%);
+    transition: transform 0.7s var(--ease-out);
+  }
+
+  a:active {
+    transform: translateY(1px);
+  }
+
+  /* Current tab: full-strength candy with a white ring */
+  a[aria-current='page'] {
+    opacity: 1;
+    outline: 2px solid rgb(255 255 255 / 0.85);
+    outline-offset: 1px;
+  }
+</style>
