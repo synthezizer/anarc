@@ -1,0 +1,13 @@
+// Cloudflare deploy config: a purely static site served from dist/.
+// Having this file stops `wrangler deploy` from auto-configuring the project
+// (which would add a server adapter the site doesn't need).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "anarc",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}
